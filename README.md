@@ -1,8 +1,8 @@
-Setup:\n
-1. git clone git@github.com:simontaotw/gae-proxy.git\n
-2. Create [app-name] on Google App Engine\n
-3. appcfg.py update [app-name]\n
-4. Profit???\n
-\n
-Usage:\n
-http://[app-name].appspot.com/?url=[url]
+# Setup:
+1. Create [app-name] on Google App Engine
+2. Modify application: [app-name] in app.yaml
+3. appcfg.py update [app-name]
+4. Profit???
+
+# Usage:
+http://[appname].appspot.com/?url=[url]
