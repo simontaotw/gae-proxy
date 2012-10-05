@@ -1,1 +1,1 @@
-http://<app-name>.appspot.com/?url=<url>
+http://[app-name].appspot.com/?url=[url]
