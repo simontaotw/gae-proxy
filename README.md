@@ -5,4 +5,4 @@
 4. Profit???
 
 # Usage:
-http://[appname].appspot.com/?url=[url]
+http://[app-name].appspot.com/?url=[url]
