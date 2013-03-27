@@ -14,8 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+
+from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 import webapp2
+
+CACHE_EXPIRATION = 60*60*24 # 1 day
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -23,16 +28,33 @@ class MainHandler(webapp2.RequestHandler):
         url = self.request.get('url')
         if not url.startswith('http://'):
             url = 'http://%s' %url 
-
-        result = urlfetch.fetch(url, deadline=60)
-
-        if result.status_code == 200:
-            self.response.headers.add_header('Content-Type', 'text/html')
-            self.response.write(result.content)
+        
+        content = memcache.get(url)
+        headers = memcache.get('%s:headers' % url)
+        status = memcache.get('%s:status' % url)
+        if content and headers and status:
+            logging.info('cache hit')
+            self.generate_response(content, headers, status)
         else:
-            self.response.write('Cannot get the url: %s' %url)
+            logging.info('cache miss')
+            result = urlfetch.fetch(url, deadline=60)
+            if result.status_code != 200:
+                result.content = 'Cannot fetch %s' % url
+            
+            self.generate_response(result.content, result.headers, result.status_code)
+            
+            memcache.set(url, result.content, CACHE_EXPIRATION)
+            memcache.set('%s:headers' % url, result.headers, CACHE_EXPIRATION)
+            memcache.set('%s:status' % url, result.status_code, CACHE_EXPIRATION)
+
+
+    def generate_response(self, content, headers, status):
+        self.response.write(content)
+        for key, value in headers.items():
+            self.response.headers.add_header(key, value)
+        self.response.set_status(status)
 
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
-], debug=True)
+], debug=False)
