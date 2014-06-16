@@ -56,6 +56,7 @@ class MainHandler(webapp2.RequestHandler):
             self.response.write(content)
         for key, value in headers.items():
             self.response.headers.add_header(key, value)
+        self.response.headers.add_header('Access-Control-Allow-Origin', '*')
         self.response.set_status(status)
 
 
